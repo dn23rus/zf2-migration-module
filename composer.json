@@ -1,0 +1,21 @@
+{
+    "name": "dn23rus/zf2-migration-module",
+    "description": "ZF2 module for db migration",
+    "keywords": [
+        "zf2",
+        "db",
+        "migration"
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "suggest": {
+        "zendframework/zendframework": "~2.*"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-0": {
+            "DbuMigration": "src/"
+        }
+    }
+}
