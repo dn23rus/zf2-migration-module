@@ -17,6 +17,7 @@ use Zend\Console\Adapter\AdapterInterface;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Adapter\AdapterAwareTrait;
 use Zend\Db\Metadata\Metadata;
+use Zend\Db\ResultSet\ResultSetInterface;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Ddl\AlterTable;
 use Zend\Db\Sql\Ddl\Constraint;
@@ -88,7 +89,7 @@ abstract class AbstractMigrateManager implements MigrateManagerInterface
     public function createTable(CreateTable $table)
     {
         $time = microtime(true);
-        $this->adapter->query($this->getSql()->getSqlStringForSqlObject($table), Adapter::QUERY_MODE_EXECUTE);
+        $this->query($this->getSql()->getSqlStringForSqlObject($table), Adapter::QUERY_MODE_EXECUTE);
         if ($this->verbose) {
             $this->getConsole()->writeLine(sprintf(
                 '    Create %stable: %s, time: %.3f',
@@ -108,7 +109,7 @@ abstract class AbstractMigrateManager implements MigrateManagerInterface
     {
         $time = microtime(true);
         $table = new DropTable($name);
-        $this->adapter->query($this->getSql()->getSqlStringForSqlObject($table), Adapter::QUERY_MODE_EXECUTE);
+        $this->query($this->getSql()->getSqlStringForSqlObject($table), Adapter::QUERY_MODE_EXECUTE);
         if ($this->verbose) {
             $this->getConsole()->writeLine(sprintf(
                 '    Drop table: %s, time %.3f',
@@ -126,7 +127,7 @@ abstract class AbstractMigrateManager implements MigrateManagerInterface
     public function alterTable(AlterTable $table)
     {
         $time = microtime(true);
-        $this->adapter->query($this->getSql()->getSqlStringForSqlObject($table), Adapter::QUERY_MODE_EXECUTE);
+        $this->query($this->getSql()->getSqlStringForSqlObject($table), Adapter::QUERY_MODE_EXECUTE);
         if ($this->verbose) {
             $this->getConsole()->writeLine(sprintf(
                 '    Alter table: %s, time: %.3f',
@@ -170,5 +171,19 @@ abstract class AbstractMigrateManager implements MigrateManagerInterface
         return strtoupper(sprintf('FK_%s_%s_%s', $table, $referenceTable, md5(
             $table . implode('', (array) $column) . $referenceTable . implode('', (array) $referenceColumn)
         )));
+    }
+
+    /**
+     * @param string $sql
+     * @param string $parametersOrQueryMode
+     * @param ResultSetInterface $resultPrototype
+     * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
+     */
+    public function query(
+        $sql,
+        $parametersOrQueryMode = Adapter::QUERY_MODE_PREPARE,
+        ResultSetInterface $resultPrototype = null
+    ) {
+        return $this->adapter->query($sql, $parametersOrQueryMode, $resultPrototype);
     }
 }
